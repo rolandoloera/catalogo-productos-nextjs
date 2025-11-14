@@ -1,0 +1,36 @@
+# docker-compose.reusar-servicios.yml
+# Usa los servicios del proyecto anterior (catalogo-productos)
+# Útil cuando ya tienes la API y DB corriendo
+
+services:
+  # Frontend Next.js (Emulando Cloud Run)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: catalogo-nextjs-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Conectar a servicios externos usando host.docker.internal
+      - NEXT_PUBLIC_API_URL=http://host.docker.internal:3001
+      - API_URL=http://host.docker.internal:3001
+      - API_VERSION=v1
+    networks:
+      - catalogo-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Para Windows/Mac
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  catalogo-network:
+    driver: bridge
+    external: false
+

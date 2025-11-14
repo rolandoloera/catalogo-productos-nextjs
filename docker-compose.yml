@@ -1,0 +1,88 @@
+# docker-compose.yml - Emulando Cloud Run
+
+services:
+  # Frontend Next.js (Emulando Cloud Run)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: catalogo-nextjs-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=http://api:3001  # Dentro de Docker usa el nombre del servicio
+      - API_URL=http://api:3001
+      - API_VERSION=v1
+    depends_on:
+      - api
+    networks:
+      - catalogo-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Backend API - Reutilizar del proyecto anterior
+  # Si ya tienes catalogo-productos-api corriendo, comenta este servicio
+  # y cambia NEXT_PUBLIC_API_URL a http://host.docker.internal:3001
+  api:
+    build:
+      context: ../catalogo-productos/services/api
+      dockerfile: Dockerfile
+    container_name: catalogo-nextjs-api
+    ports:
+      - "3002:3001"  # Puerto externo 3002 para evitar conflicto
+    environment:
+      - PORT=3001
+      - API_VERSION=v1
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/catalogo_productos
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=catalogo_productos
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - catalogo-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Base de datos PostgreSQL
+  # Si ya tienes catalogo-productos-db corriendo, comenta este servicio
+  # y cambia DB_HOST a 'host.docker.internal' y DB_PORT a 5432
+  postgres:
+    image: postgres:15-alpine
+    container_name: catalogo-nextjs-db
+    environment:
+      - POSTGRES_DB=catalogo_productos
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"  # Puerto externo 5433 para evitar conflicto
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - catalogo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  catalogo-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+
