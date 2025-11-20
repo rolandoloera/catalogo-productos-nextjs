@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Iconos PWA Simple</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #9333ea;
+    }
+    canvas {
+      border: 2px dashed #ccc;
+      margin: 20px 0;
+      display: block;
+    }
+    button {
+      background: #9333ea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #7e22ce;
+    }
+    .instructions {
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    .download-link {
+      display: inline-block;
+      margin: 5px;
+      padding: 8px 16px;
+      background: #10b981;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎨 Generador de Iconos PWA</h1>
+    
+    <div class="instructions">
+      <h3>Instrucciones:</h3>
+      <ol>
+        <li>Haz clic en "Generar Icono" para crear un icono simple</li>
+        <li>O personaliza el texto y color abajo</li>
+        <li>Descarga los iconos generados</li>
+        <li>Colócalos en la carpeta <code>/public</code> de tu proyecto</li>
+      </ol>
+    </div>
+
+    <div>
+      <label>
+        Texto del icono: 
+        <input type="text" id="iconText" value="🛍️" maxlength="2" style="font-size: 24px; width: 60px; padding: 5px;">
+      </label>
+    </div>
+
+    <div style="margin: 15px 0;">
+      <label>
+        Color de fondo: 
+        <input type="color" id="bgColor" value="#9333ea">
+      </label>
+    </div>
+
+    <button onclick="generateIcon()">Generar Icono</button>
+    <button onclick="downloadAll()">Descargar Todos</button>
+
+    <canvas id="iconCanvas" width="512" height="512"></canvas>
+
+    <div id="downloads"></div>
+  </div>
+
+  <script>
+    const sizes = [
+      { size: 192, name: 'icon-192x192.png' },
+      { size: 512, name: 'icon-512x512.png' },
+      { size: 180, name: 'apple-touch-icon.png' },
+      { size: 32, name: 'favicon-32x32.png' },
+      { size: 16, name: 'favicon-16x16.png' },
+    ];
+
+    function generateIcon() {
+      const text = document.getElementById('iconText').value || '🛍️';
+      const bgColor = document.getElementById('bgColor').value;
+      const canvas = document.getElementById('iconCanvas');
+      const ctx = canvas.getContext('2d');
+
+      // Fondo
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Texto centrado
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 300px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 256, 256);
+
+      // Generar todos los tamaños
+      const downloadsDiv = document.getElementById('downloads');
+      downloadsDiv.innerHTML = '<h3>Descargar iconos:</h3>';
+
+      sizes.forEach(({ size, name }) => {
+        const smallCanvas = document.createElement('canvas');
+        smallCanvas.width = size;
+        smallCanvas.height = size;
+        const smallCtx = smallCanvas.getContext('2d');
+
+        // Fondo
+        smallCtx.fillStyle = bgColor;
+        smallCtx.fillRect(0, 0, size, size);
+
+        // Texto escalado
+        smallCtx.fillStyle = 'white';
+        smallCtx.font = `bold ${size * 0.6}px Arial`;
+        smallCtx.textAlign = 'center';
+        smallCtx.textBaseline = 'middle';
+        smallCtx.fillText(text, size / 2, size / 2);
+
+        // Crear enlace de descarga
+        smallCanvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = name;
+          link.className = 'download-link';
+          link.textContent = `📥 ${name}`;
+          downloadsDiv.appendChild(link);
+        });
+      });
+    }
+
+    function downloadAll() {
+      const links = document.querySelectorAll('#downloads a');
+      links.forEach(link => {
+        setTimeout(() => link.click(), 100);
+      });
+    }
+
+    // Generar al cargar
+    window.onload = () => generateIcon();
+  </script>
+</body>
+</html>
+
