@@ -1,0 +1,63 @@
+═══════════════════════════════════════
+  CHECKLIST: DESPLEGAR EN RENDER
+═══════════════════════════════════════
+
+✅ PASO 1: Subir cambios a GitHub
+   [ ] git add .
+   [ ] git commit -m "Preparar para Render"
+   [ ] git push origin main
+
+✅ PASO 2: Desplegar API (desde proyecto anterior)
+   [ ] Ir a: https://dashboard.render.com/
+   [ ] New + → Web Service
+   [ ] Repositorio: rolandoloera/catalogo-productos
+   [ ] Root Directory: services/api
+   [ ] Build Command: npm install
+   [ ] Start Command: npm start
+   
+   Variables de entorno:
+   [ ] DATABASE_URL=postgresql://catalogo_productos_user:kSvKiQJogK9kNWwF07cgt9MBwRFKm6jS@dpg-d49rr3q4d50c739kvrcg-a.oregon-postgres.render.com/catalogo_productos?sslmode=require
+   [ ] JWT_SECRET=(generar uno aleatorio)
+   [ ] ADMIN_PASSWORD=(cambiar por uno seguro)
+   [ ] PORT=3001
+   [ ] API_VERSION=v1
+   
+   [ ] Create Web Service
+   [ ] Esperar 5-10 minutos
+   [ ] Anotar URL del API: https://catalogo-productos-api.onrender.com
+
+✅ PASO 3: Desplegar Frontend Next.js
+   [ ] New + → Web Service
+   [ ] Repositorio: rolandoloera/catalogo-productos-nextjs
+   [ ] Root Directory: (vacío)
+   [ ] Build Command: npm install && npm run build
+   [ ] Start Command: npm start
+   
+   Variables de entorno:
+   [ ] NEXT_PUBLIC_API_URL=https://catalogo-productos-api.onrender.com
+   [ ] PORT=3000
+   [ ] API_VERSION=v1
+   [ ] NEXT_PUBLIC_WHATSAPP_NUMBER=521234567890
+   
+   [ ] Create Web Service
+   [ ] Esperar 5-10 minutos
+
+✅ PASO 4: Verificar
+   [ ] API Health: https://catalogo-productos-api.onrender.com/health
+   [ ] Frontend: https://catalogo-productos-nextjs.onrender.com
+   [ ] Login: https://catalogo-productos-nextjs.onrender.com/admin/login
+
+═══════════════════════════════════════
+  DATABASE_URL (ya la tienes):
+═══════════════════════════════════════
+postgresql://catalogo_productos_user:kSvKiQJogK9kNWwF07cgt9MBwRFKm6jS@dpg-d49rr3q4d50c739kvrcg-a.oregon-postgres.render.com/catalogo_productos?sslmode=require
+
+═══════════════════════════════════════
+  GENERAR JWT_SECRET:
+═══════════════════════════════════════
+Windows PowerShell:
+[Convert]::ToBase64String((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
+
+Linux/Mac:
+openssl rand -base64 32
+

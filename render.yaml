@@ -1,0 +1,23 @@
+services:
+  # Frontend Next.js
+  - type: web
+    name: catalogo-productos-nextjs
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: NEXT_PUBLIC_API_URL
+        # IMPORTANTE: Actualiza esta URL con la URL real de tu API después de desplegarlo
+        value: https://catalogo-productos-api.onrender.com
+      - key: API_VERSION
+        value: v1
+      - key: NEXT_PUBLIC_WHATSAPP_NUMBER
+        value: 521234567890
+        sync: false
+
+

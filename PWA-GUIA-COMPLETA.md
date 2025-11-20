@@ -1,6 +1,6 @@
-# 📱 Guía Completa: Convertir a PWA Instalable
+# 📱 PWA - Guía Completa
 
-Esta guía te llevará paso a paso para convertir tu proyecto Next.js en una PWA (Progressive Web App) instalable en móviles.
+Guía para convertir tu proyecto Next.js en una PWA (Progressive Web App) instalable en móviles.
 
 ---
 

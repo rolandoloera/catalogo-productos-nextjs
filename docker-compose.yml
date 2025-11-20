@@ -39,7 +39,8 @@ services:
     environment:
       - PORT=3001
       - API_VERSION=v1
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/catalogo_productos
+      # No usar DATABASE_URL para evitar SSL en local
+      # - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/catalogo_productos
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=catalogo_productos
