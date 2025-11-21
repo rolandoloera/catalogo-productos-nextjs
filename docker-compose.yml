@@ -39,16 +39,21 @@ services:
     environment:
       - PORT=3001
       - API_VERSION=v1
-      # No usar DATABASE_URL para evitar SSL en local
-      # - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/catalogo_productos
+      # Para desarrollo local: usar BD local en Docker (emula Cloud Run)
+      # Para producción: usar Supabase (comenta estas y descomenta DATABASE_URL)
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=catalogo_productos
+      # - DB_NAME=catalogo_productos  # Se usa por defecto
       - DB_USER=postgres
       - DB_PASSWORD=postgres
+      # Para producción en Render, usa esta:
+      # - DATABASE_URL=postgresql://postgres:loar8811@db.royezgjemrtwzdrdpdon.supabase.co:5432/postgres?sslmode=require
     depends_on:
       postgres:
         condition: service_healthy
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     networks:
       - catalogo-network
     healthcheck:
@@ -58,9 +63,8 @@ services:
       retries: 3
       start_period: 40s
 
-  # Base de datos PostgreSQL
-  # Si ya tienes catalogo-productos-db corriendo, comenta este servicio
-  # y cambia DB_HOST a 'host.docker.internal' y DB_PORT a 5432
+  # Base de datos PostgreSQL LOCAL (para desarrollo - emula Cloud Run)
+  # En producción (Render) se usa Supabase
   postgres:
     image: postgres:15-alpine
     container_name: catalogo-nextjs-db
@@ -83,6 +87,10 @@ services:
 networks:
   catalogo-network:
     driver: bridge
+    enable_ipv6: false
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
 volumes:
   postgres-data:
